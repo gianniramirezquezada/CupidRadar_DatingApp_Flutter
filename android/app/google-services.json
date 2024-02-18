@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "185379667405",
+    "project_id": "romanceradar-b996e",
+    "storage_bucket": "romanceradar-b996e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185379667405:android:b58b0ff464dec370d59884",
+        "android_client_info": {
+          "package_name": "com.example.romanceradar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbZs-pkpg66rYYV83kFl1EecuGZNyruKQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
