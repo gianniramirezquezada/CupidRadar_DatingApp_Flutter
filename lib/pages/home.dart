@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
       print("Error updating dating preference: $e");
     }
 
-    // Close the right sidebar
+  
     Navigator.of(context).pop();
 
      if (Navigator.of(context).canPop()) {
