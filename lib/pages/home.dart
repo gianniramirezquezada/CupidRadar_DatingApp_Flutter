@@ -5,6 +5,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:romanceradar/pages/about.dart';
 import 'package:romanceradar/pages/chatbox.dart';
 import 'package:romanceradar/pages/datingPreference.dart';
+import 'package:romanceradar/pages/matchRequest.dart';
 
 import 'package:romanceradar/pages/myprofilepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
   // New method to handle dating preference selection
   void _handleDatingPreferenceSelection(String preference) async {
     // Update the currentDatingPreference in the class
-   
 
     // Update the dating preference in Firestore
     try {
@@ -103,14 +103,13 @@ class _HomeScreenState extends State<HomeScreen> {
       print("Error updating dating preference: $e");
     }
 
-  
     Navigator.of(context).pop();
 
-     if (Navigator.of(context).canPop()) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (BuildContext context) => HomeScreen()),
-    );
-  }
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (BuildContext context) => HomeScreen()),
+      );
+    }
   }
 
   void _showDatingPreferenceSidebar() {
@@ -327,7 +326,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           size: 40,
                           color: Colors.black,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MatchRequestsPage(),
+                            ),
+                          );
+                        },
                       ),
                       Icon(Icons.watch_later),
                       Container(
@@ -338,7 +344,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: IconButton(
                           icon:
                               Icon(Icons.favorite, size: 40, color: Colors.red),
-                          onPressed: () {},
+                          onPressed: () {
+                            _sendMatchRequest(
+                                context, userData[currentIndex]['email']);
+                          },
                         ),
                       ),
                       IconButton(
@@ -365,6 +374,35 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+}
+
+void _sendMatchRequest(BuildContext context, String receiverEmail) async {
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String senderEmail = prefs.getString('userEmail') ?? '';
+
+    if (senderEmail.isNotEmpty) {
+      await FirebaseFirestore.instance.collection('matchRequests').add({
+        'sender': senderEmail,
+        'receiver': receiverEmail,
+        'status': 'pending',
+        'timestamp': FieldValue.serverTimestamp(), // Use server timestamp
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Match request sent'),
+          duration: Duration(seconds: 2), // Optional: Set the duration
+        ),
+      );
+
+      // You may also want to show a success message or update UI accordingly
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Match request sent')));
+    }
+  } catch (e) {
+    print("Error sending match request: $e");
+    // Handle the error, e.g., show an error message to the user
   }
 }
 
