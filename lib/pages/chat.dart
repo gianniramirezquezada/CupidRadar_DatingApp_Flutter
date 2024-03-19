@@ -3,6 +3,8 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FullScreenImage extends StatelessWidget {
   final String imagePath;
@@ -47,9 +49,13 @@ class FullScreenImage extends StatelessWidget {
 
 class ChatScreen extends StatefulWidget {
   final String userName;
+  final String userEmail;
   final String userImage;
 
-  ChatScreen({required this.userName, required this.userImage});
+  ChatScreen(
+      {required this.userName,
+      required this.userEmail,
+      required this.userImage});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -57,28 +63,80 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final List<Map<String, dynamic>> messages = [];
-
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _emojiShowing = false;
+  late String loggedInUserEmail = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _getLoggedInUserEmail();
+  }
+
+  Future<void> _getLoggedInUserEmail() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      loggedInUserEmail = prefs.getString('userEmail') ?? '';
+    });
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      setState(() {
-        messages.add({
-          'sender': widget.userName,
-          'receiver': 'receiver_username',
-          'image': pickedFile.path,
-        });
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+      _storeMessage({
+        'loggedInUser': loggedInUserEmail,
+        'OppositeUser': widget.userEmail,
+        'image': pickedFile.path,
+        'timestamp': FieldValue.serverTimestamp(),
       });
+    }
+  }
+
+  Future<void> _storeMessage(Map<String, dynamic> message) async {
+    try {
+      await FirebaseFirestore.instance.collection('chats').add(message);
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    } catch (e) {
+      print('Error storing message: $e');
+    }
+  }
+
+  Stream<List<Map<String, dynamic>>> _getMessagesStream() async* {
+    var query1 = FirebaseFirestore.instance
+        .collection('chats')
+        .where('loggedInUser', isEqualTo: loggedInUserEmail)
+        .where('OppositeUser', isEqualTo: widget.userEmail)
+        .orderBy('timestamp', descending: false)
+        .limit(50)
+        .snapshots();
+
+    var query2 = FirebaseFirestore.instance
+        .collection('chats')
+        .where('loggedInUser', isEqualTo: widget.userEmail)
+        .where('OppositeUser', isEqualTo: loggedInUserEmail)
+        .orderBy('timestamp', descending: false)
+        .limit(50)
+        .snapshots();
+
+    await for (var query1Snapshot in query1) {
+      var query2Snapshot = await query2.first;
+      var mergedList = [...query1Snapshot.docs, ...query2Snapshot.docs];
+      mergedList.sort((a, b) {
+        var aTimestamp = (a['timestamp'] as Timestamp?)?.toDate();
+        var bTimestamp = (b['timestamp'] as Timestamp?)?.toDate();
+        return (aTimestamp ?? DateTime(0)).compareTo(bTimestamp ?? DateTime(0));
+      });
+
+      yield mergedList
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
     }
   }
 
@@ -89,7 +147,7 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: AssetImage(widget.userImage),
+              backgroundImage: NetworkImage(widget.userImage),
             ),
             SizedBox(width: 8),
             Text(widget.userName),
@@ -99,81 +157,113 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                if (messages[index].containsKey('message')) {
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Align(
-                      alignment: messages[index]['sender'] == widget.userName
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: messages[index]['sender'] == widget.userName
-                              ? Colors.blue
-                              : Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          messages[index]['message'],
-                          style: TextStyle(
-                            color: messages[index]['sender'] == widget.userName
-                                ? Colors.white
-                                : Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
+            child: StreamBuilder(
+              stream: _getMessagesStream(),
+              builder: (context,
+                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
                   );
-                } else if (messages[index].containsKey('image')) {
-                  return Container(
-                    height: 300,
-                    width: 100,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      child: Hero(
-                        tag: 'imageHero_${messages[index]['image']}',
-                        child: Align(
-                          alignment:
-                              messages[index]['sender'] == widget.userName
-                                  ? Alignment.centerRight
-                                  : Alignment.centerLeft,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FullScreenImage(
-                                    imagePath: messages[index]['image'],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color:
-                                    messages[index]['sender'] == widget.userName
-                                        ? Colors.blue
-                                        : Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Image.file(File(messages[index]['image'])),
-                            ),
-                          ),
-                        ),
-                      ),
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Error: ${snapshot.error}',
+                      style: TextStyle(color: Colors.red),
                     ),
                   );
                 }
-                return SizedBox.shrink();
+
+                messages.clear();
+                messages.addAll(snapshot.data!);
+
+                return ListView.builder(
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    if (messages[index].containsKey('message')) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        child: Align(
+                          alignment: messages[index]['loggedInUser'] ==
+                                  loggedInUserEmail
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: Container(
+                            padding: EdgeInsets.all(8),
+                            constraints: BoxConstraints(
+                              maxWidth: 300.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: messages[index]['loggedInUser'] ==
+                                      loggedInUserEmail
+                                  ? Colors.blue
+                                  : Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              messages[index]['message'],
+                              style: TextStyle(
+                                color: messages[index]['loggedInUser'] ==
+                                        loggedInUserEmail
+                                    ? Colors.white
+                                    : Colors.black,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    } else if (messages[index].containsKey('image')) {
+                      return Container(
+                        height: 300,
+                        width: 100,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          child: Hero(
+                            tag: 'imageHero_${messages[index]['image']}',
+                            child: Align(
+                              alignment: messages[index]['loggedInUser'] ==
+                                      loggedInUserEmail
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FullScreenImage(
+                                        imagePath: messages[index]['image'],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: messages[index]['loggedInUser'] ==
+                                            loggedInUserEmail
+                                        ? Colors.blue
+                                        : Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Image.file(
+                                      File(messages[index]['image'])),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
+                  controller: _scrollController,
+                );
               },
-              controller: _scrollController,
             ),
           ),
           Container(
@@ -240,19 +330,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: IconButton(
                     onPressed: () {
                       if (_textController.text.isNotEmpty) {
-                        setState(() {
-                          messages.add({
-                            'sender': widget.userName,
-                            'receiver': 'receiver_username',
-                            'message': _textController.text,
-                          });
-                          _textController.clear();
-                          _scrollController.animateTo(
-                            _scrollController.position.maxScrollExtent,
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeOut,
-                          );
+                        _storeMessage({
+                          'loggedInUser': loggedInUserEmail,
+                          'OppositeUser': widget.userEmail,
+                          'message': _textController.text,
+                          'timestamp': FieldValue.serverTimestamp(),
                         });
+                        _textController.clear();
                       }
                     },
                     icon: Icon(

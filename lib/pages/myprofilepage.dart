@@ -24,7 +24,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   late TextEditingController addressController = TextEditingController();
   late TextEditingController phoneNumberController = TextEditingController();
   late TextEditingController genderController = TextEditingController();
-  
+
   late TextEditingController hobbiesController = TextEditingController();
   bool isEditMode = false;
   bool isDatePickerOpen = false;
@@ -67,7 +67,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           addressController.text = userData['address'] ?? '';
           phoneNumberController.text = userData['phoneNumber'] ?? '';
           genderController.text = userData['gender'] ?? '';
-         
+
           hobbiesController.text =
               userData['hobbies'] != null ? userData['hobbies'].join(', ') : '';
         });
@@ -110,7 +110,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         if (genderController.text.isNotEmpty) {
           updatedData['gender'] = genderController.text;
         }
-       
+
         if (hobbiesController.text.isNotEmpty) {
           updatedData['hobbies'] =
               hobbiesController.text.split(',').map((e) => e.trim()).toList();
@@ -147,12 +147,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
         DocumentSnapshot<Map<String, dynamic>> userDoc = users.docs.first;
         String documentId = userDoc.id;
 
-        
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
         List<String> updatedImageUrls =
             List<String>.from(userData['imageUrls'] ?? []);
 
-        updatedImageUrls[0] = newUrl; 
+        updatedImageUrls[0] = newUrl;
 
         await FirebaseFirestore.instance
             .collection('users')
@@ -240,25 +239,18 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 
   void _changeProfilePicture(int index) async {
-    
     final picker = ImagePicker();
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      
       String newImagePath = pickedFile.path;
 
-      
       if (index >= 0 && index < imageUrls.length) {
-        
         await deleteImageInStorage(imageUrls[index]);
-        
+
         await uploadImageToStorage(newImagePath, index);
       }
-
-      
     } else {
-      
       print('Image picking canceled');
     }
   }
@@ -300,7 +292,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
         DocumentSnapshot<Map<String, dynamic>> userDoc = users.docs.first;
         String documentId = userDoc.id;
 
-        
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
         List<String> updatedImageUrls =
             List<String>.from(userData['imageUrls'] ?? []);
@@ -323,13 +314,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
     }
   }
 
-
   Future<bool> _onBackPressed() async {
-
- Navigator.of(context).pushReplacement(
+    Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (BuildContext context) => HomeScreen()),
     );
-      return false;
+    return false;
   }
 
   @override
@@ -357,8 +346,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         ],
       ),
       body: WillPopScope(
-              onWillPop: _onBackPressed,
-
+        onWillPop: _onBackPressed,
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -393,7 +381,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   },
                                   child: Row(children: [
                                     ClipRRect(
-                                      borderRadius: BorderRadius.circular(150.0),
+                                      borderRadius:
+                                          BorderRadius.circular(150.0),
                                       child: Image.network(
                                         imageUrls.first,
                                         height: 150,
@@ -403,7 +392,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                     ),
                                     Expanded(
                                       child: Container(
-                                        padding: EdgeInsets.only(left: 8, top: 8),
+                                        padding:
+                                            EdgeInsets.only(left: 8, top: 8),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -439,14 +429,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 _openDatePicker(context);
                               }
                             }),
-                            buildEditField(
-                                'Address', 'address', userData['address'] ?? ''),
+                            buildEditField('Address', 'address',
+                                userData['address'] ?? ''),
                             buildEditField('Phone Number', 'phoneNumber',
                                 userData['phoneNumber'] ?? ''),
-                            buildEditField(
-                                'Gender', 'gender', userData['gender'] ?? '',
-                                dropdown: true),
-                           
                             buildEditField(
                               'Hobbies',
                               'hobbies',
@@ -460,7 +446,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 setState(() {
                                   isEditMode = !isEditMode;
                                 });
-        
+
                                 if (!isEditMode) {
                                   updateUserData();
                                 }
@@ -473,8 +459,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               ),
                               child: Text(
                                 isEditMode ? 'Save Changes' : 'Edit Profile',
-                                style:
-                                    TextStyle(fontSize: 16, color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
                               ),
                             ),
                             SizedBox(height: 16),
@@ -487,10 +473,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                       imageUrls.asMap().entries.map((entry) {
                                     int index = entry.key;
                                     String imageUrl = entry.value;
-        
+
                                     return GestureDetector(
                                       onTap: () {
-                                        _openImageZoom(context, imageUrl, index);
+                                        _openImageZoom(
+                                            context, imageUrl, index);
                                       },
                                       child: Padding(
                                         padding: EdgeInsets.all(8.0),
@@ -555,10 +542,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   ? addressController
                                   : field == 'phoneNumber'
                                       ? phoneNumberController
-                                      : field == 'gender'
-                                          ? genderController
-                                          
-                                              : hobbiesController,
+                                      : hobbiesController,
                       decoration: InputDecoration(
                         hintText: 'Enter $label',
                       ),
@@ -601,11 +585,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
     List<String> options = [];
     String currentValue = '';
 
-    if (field == 'gender') {
-      options = ['Male', 'Female', 'Other'];
-      currentValue = genderController.text;
-    }
-
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
@@ -617,11 +596,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         child: DropdownButtonFormField<String>(
           value: currentValue.isNotEmpty ? currentValue : null,
           onChanged: (value) {
-            setState(() {
-              if (field == 'gender') {
-                genderController.text = value.toString();
-              } 
-            });
+            setState(() {});
           },
           items: options.map((String option) {
             return DropdownMenuItem<String>(

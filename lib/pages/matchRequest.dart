@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:romanceradar/pages/about.dart';
+// import 'package:romanceradar/pages/about.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MatchRequestsPage extends StatefulWidget {
@@ -180,26 +180,40 @@ class _MatchRequestCardState extends State<MatchRequestCard> {
     // Update the status to 'matched'
     FirebaseFirestore.instance
         .collection('matchRequests')
-        .doc(widget.senderEmail)
-        .update({'status': newStatus}).then((value) {
-      print('Status updated to $newStatus');
-      // You can add further logic after updating the status
+        .where('sender', isEqualTo: widget.senderEmail)
+        .where('status', isEqualTo: 'pending')
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.update({'status': newStatus}).then((value) {
+          print('Status updated to $newStatus');
+          // You can add further logic after updating the status
+        }).catchError((error) {
+          print('Error updating status: $error');
+        });
+      });
     }).catchError((error) {
-      print('Error updating status: $error');
+      print('Error getting documents: $error');
     });
   }
 
   void _deleteUser() {
-    // Delete the user from matchRequests collection
+    // Delete the user from matchRequests collection using a unique identifier
     FirebaseFirestore.instance
         .collection('matchRequests')
-        .doc(widget.senderEmail)
-        .delete()
-        .then((value) {
-      print('User deleted successfully');
-      // You can add further logic after deleting the user
+        .where('sender', isEqualTo: widget.senderEmail)
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.delete().then((value) {
+          print('User deleted successfully');
+          // You can add further logic after deleting the user
+        }).catchError((error) {
+          print('Error deleting user: $error');
+        });
+      });
     }).catchError((error) {
-      print('Error deleting user: $error');
+      print('Error getting documents: $error');
     });
   }
 }

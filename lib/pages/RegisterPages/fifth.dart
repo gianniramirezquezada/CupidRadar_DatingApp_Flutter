@@ -83,25 +83,45 @@ class _FifthScreenState extends State<FifthScreen> {
               SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SixthScreen(
-                        name: widget.name,
-                        email: widget.email,
-                        password: widget.password,
-                        dob: widget.dob,
-                        address: widget.address,
-                        phoneNumber: widget.phoneNumber,
-                        hobbies: widget.hobbies,
-                        selectedImages: widget.selectedImages,
-                        selectedGender: selectedGender ?? '',
-                        selectedDatingPreference:
-                            selectedDatingPreference ?? '',
-                        bio: bioController.text,
+                  if (_validateFields()) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SixthScreen(
+                          name: widget.name,
+                          email: widget.email,
+                          password: widget.password,
+                          dob: widget.dob,
+                          address: widget.address,
+                          phoneNumber: widget.phoneNumber,
+                          hobbies: widget.hobbies,
+                          selectedImages: widget.selectedImages,
+                          selectedGender: selectedGender ?? '',
+                          selectedDatingPreference:
+                              selectedDatingPreference ?? '',
+                          bio: bioController.text,
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Validation Error'),
+                          content: Text('Please fill in all fields.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   primary: Color.fromARGB(255, 130, 108, 255),
@@ -165,5 +185,16 @@ class _FifthScreenState extends State<FifthScreen> {
         ),
       ),
     );
+  }
+
+  bool _validateFields() {
+    if (selectedGender == null ||
+        selectedDatingPreference == null ||
+        bioController.text.trim().isEmpty) {
+      // Return false if any of the fields is not filled
+      return false;
+    }
+
+    return true;
   }
 }

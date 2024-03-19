@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'dart:async';
 import 'dart:io';
 
 import 'package:romanceradar/pages/loginpage.dart';
@@ -38,11 +39,14 @@ class SixthScreen extends StatefulWidget {
 
 class _SixthScreenState extends State<SixthScreen> {
   late Future<void> _storeUserDataFuture;
+  late Timer _timeoutTimer;
+  bool _showError = false;
 
   @override
   void initState() {
     super.initState();
     _storeUserDataFuture = _storeUserData();
+    _timeoutTimer = Timer(Duration(seconds: 60), _handleTimeout);
   }
 
   Future<void> _storeUserData() async {
@@ -68,6 +72,7 @@ class _SixthScreenState extends State<SixthScreen> {
           'User data and images stored successfully in Firestore and Storage!');
     } catch (e) {
       print('Error storing user data and images: $e');
+      _handleError();
     }
   }
 
@@ -96,77 +101,140 @@ class _SixthScreenState extends State<SixthScreen> {
       }
     } catch (e) {
       print('Error uploading images: $e');
+      _handleError();
     }
 
     return imageUrls;
   }
 
+  void _handleTimeout() {
+    setState(() {
+      _showError = true;
+    });
+  }
+
+  void _handleError() {
+    setState(() {
+      _showError = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Registration - Step 6'),
-      ),
+      
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<void>(
-          future: _storeUserDataFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Error: ${snapshot.error}'),
-              );
-            } else {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 80.0,
-                  ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Your account is successfully created!',
-                    style: TextStyle(fontSize: 18.0),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 20.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginPage(),
+        child: _showError
+            ? Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  
+                  children: [
+                    Text(
+                      'Please check your connection',
+                      style: TextStyle(fontSize: 16.0),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 20.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _showError = false;
+                        });
+                        _timeoutTimer.cancel();
+                        _storeUserDataFuture = _storeUserData();
+                        _timeoutTimer =
+                            Timer(Duration(seconds: 60), _handleTimeout);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Color.fromARGB(255, 130, 108, 255),
+                        padding: EdgeInsets.all(15.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Color.fromARGB(255, 130, 108, 255),
-                      padding: EdgeInsets.symmetric(vertical: 15.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Text(
+                        'Try Again',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                  ],
+                ),
+            )
+            : FutureBuilder<void>(
+                future: _storeUserDataFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'It may take a while. We are setting up your account...',
+                            style: TextStyle(fontSize: 16.0),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 20.0),
+                          CircularProgressIndicator(),
+                        ],
                       ),
-                    ),
-                  ),
-                ],
-              );
-            }
-          },
-        ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 80.0,
+                        ),
+                        SizedBox(height: 20.0),
+                        Text(
+                          'Your account is successfully created!',
+                          style: TextStyle(fontSize: 18.0),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 20.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoginPage(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Color.fromARGB(255, 130, 108, 255),
+                            padding: EdgeInsets.symmetric(vertical: 15.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                },
+              ),
       ),
     );
   }

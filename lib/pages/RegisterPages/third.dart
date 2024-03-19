@@ -33,7 +33,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
     {'name': 'Cooking', 'icon': Icons.restaurant, 'color': Colors.orange},
     {'name': 'Traveling', 'icon': Icons.flight, 'color': Colors.purple},
     {'name': 'Photography', 'icon': Icons.camera, 'color': Colors.red},
-    {'name': 'Gaming', 'icon': Icons.videogame_asset, 'color': Colors.yellow},
+    {'name': 'Gaming', 'icon': Icons.videogame_asset, 'color': Color.fromARGB(255, 245, 241, 4)},
     {'name': 'Painting', 'icon': Icons.palette, 'color': Colors.pink},
   ];
 
@@ -84,6 +84,30 @@ class _ThirdScreenState extends State<ThirdScreen> {
     setState(() {
       hobbies.remove(hobby);
     });
+  }
+
+  bool validateForm() {
+    if (hobbies.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Hobbies Required'),
+            content: Text('Please select at least one hobby.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return false;
+    }
+    return true;
   }
 
   @override
@@ -154,20 +178,22 @@ class _ThirdScreenState extends State<ThirdScreen> {
               SizedBox(height: 20.0),
               ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FourthScreen(
-                          name: widget.name,
-                          email: widget.email,
-                          password: widget.password,
-                          dob: widget.dob,
-                          address: widget.address,
-                          phoneNumber: widget.phoneNumber,
-                          hobbies: hobbies,
+                    if (validateForm()) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FourthScreen(
+                            name: widget.name,
+                            email: widget.email,
+                            password: widget.password,
+                            dob: widget.dob,
+                            address: widget.address,
+                            phoneNumber: widget.phoneNumber,
+                            hobbies: hobbies,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     primary: Color.fromARGB(255, 130, 108, 255),

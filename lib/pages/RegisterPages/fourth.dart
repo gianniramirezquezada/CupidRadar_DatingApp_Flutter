@@ -27,7 +27,7 @@ class FourthScreen extends StatefulWidget {
 }
 
 class _FourthScreenState extends State<FourthScreen> {
-  List<File?> _selectedImages = List.generate(6, (index) => null);
+  List<File?> _selectedImages = List.generate(5, (index) => null);
 
   Future<void> _pickImage(int index) async {
     final picker = ImagePicker();
@@ -39,6 +39,15 @@ class _FourthScreenState extends State<FourthScreen> {
       });
     }
   }
+
+  bool validateImages() {
+  for (int i = 0; i < 5; i++) {
+    if (_selectedImages[i] == null) {
+      return false;
+    }
+  }
+  return true;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +64,7 @@ class _FourthScreenState extends State<FourthScreen> {
               width: 300,
               height: 300,
             ),
+            SizedBox(height: 10.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -88,15 +98,15 @@ class _FourthScreenState extends State<FourthScreen> {
             ),
             SizedBox(height: 10.0),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                for (int i = 3; i < 6; i++)
+                for (int i = 3; i < 5; i++)
                   InkWell(
                     onTap: () => _pickImage(i),
                     child: Container(
                       height: 90,
                       width: 90,
-                      margin: EdgeInsets.all(8.0),
+                      margin: EdgeInsets.only(right: 10.0, left: 10),
                       decoration: BoxDecoration(
                         color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(8.0),
@@ -121,21 +131,41 @@ class _FourthScreenState extends State<FourthScreen> {
             SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FifthScreen(
-                      name: widget.name,
-                      email: widget.email,
-                      password: widget.password,
-                      dob: widget.dob,
-                      address: widget.address,
-                      phoneNumber: widget.phoneNumber,
-                      hobbies: widget.hobbies,
-                      selectedImages: _selectedImages,
+                if (validateImages()) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FifthScreen(
+                        name: widget.name,
+                        email: widget.email,
+                        password: widget.password,
+                        dob: widget.dob,
+                        address: widget.address,
+                        phoneNumber: widget.phoneNumber,
+                        hobbies: widget.hobbies,
+                        selectedImages: _selectedImages,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Images Required'),
+                        content: Text('Please upload all images.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 primary: Color.fromARGB(255, 130, 108, 255),

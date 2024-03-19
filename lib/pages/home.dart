@@ -54,6 +54,17 @@ class _HomeScreenState extends State<HomeScreen> {
           currentDatingPreference = loggedInUserData['datingPreference']
               as String?; // Update currentDatingPreference
 
+          // Fetch the matchRequests collection
+          QuerySnapshot matchRequestsSnapshot = await FirebaseFirestore.instance
+              .collection('matchRequests')
+              .get();
+
+          // Explicitly specify the type of matchRequests
+          List<Map<String, dynamic>> matchRequests = matchRequestsSnapshot.docs
+              .map<Map<String, dynamic>>(
+                  (doc) => doc.data() as Map<String, dynamic>)
+              .toList();
+
           QuerySnapshot querySnapshot =
               await FirebaseFirestore.instance.collection('users').get();
 
@@ -66,6 +77,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         data['gender'] == loggedInUserDatingPreference &&
                         data['datingPreference'] == loggedInUserGender;
                   })
+                  .where((doc) {
+                    // Check if there is no match request between the logged-in user and the current user
+                    return !isMatched(
+                        loggedInUserEmail, doc['email'], matchRequests);
+                  })
                   .map<Map<String, dynamic>>(
                       (doc) => doc.data() as Map<String, dynamic>)
                   .toList();
@@ -76,6 +92,23 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print("Error fetching data: $e");
     }
+  }
+
+  bool isMatched(String sender, String receiver,
+      List<Map<String, dynamic>> matchRequests) {
+    // Check if there is any match request between sender and receiver with a status of 'matched'
+    var matchingRequest = matchRequests.firstWhere(
+      (matchRequest) =>
+          ((matchRequest['sender'] == sender &&
+                  matchRequest['receiver'] == receiver) ||
+              (matchRequest['sender'] == receiver &&
+                  matchRequest['receiver'] == sender)) &&
+          matchRequest['status'] == 'matched',
+      orElse: () => {},
+    );
+
+    // If there is a matching request with 'matched' status, consider it as a match
+    return matchingRequest.isNotEmpty;
   }
 
   Future<void> _refreshData() async {
@@ -169,10 +202,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButton(
                     icon: Icon(Icons.message, size: 40),
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ChatBoxScreen(),
+                          builder: (context) => ChatBox(),
                         ),
                       );
                     },
