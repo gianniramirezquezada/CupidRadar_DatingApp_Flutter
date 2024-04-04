@@ -6,6 +6,7 @@ import 'package:romanceradar/pages/about.dart';
 import 'package:romanceradar/pages/chatbox.dart';
 import 'package:romanceradar/pages/datingPreference.dart';
 import 'package:romanceradar/pages/matchRequest.dart';
+import 'package:romanceradar/pages/matchedPopup.dart';
 
 import 'package:romanceradar/pages/myprofilepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,22 +70,44 @@ class _HomeScreenState extends State<HomeScreen> {
               await FirebaseFirestore.instance.collection('users').get();
 
           if (querySnapshot.docs.isNotEmpty) {
+            List<Map<String, dynamic>> sortedUserData = querySnapshot.docs
+                .where((doc) {
+                  var data = doc.data() as Map<String, dynamic>;
+                  return data['email'] != loggedInUserEmail &&
+                      data['gender'] == loggedInUserDatingPreference &&
+                      data['datingPreference'] == loggedInUserGender;
+                })
+                .where((doc) {
+                  // Check if there is no match request between the logged-in user and the current user
+                  return !isMatched(
+                      loggedInUserEmail, doc['email'], matchRequests);
+                })
+                .map<Map<String, dynamic>>(
+                    (doc) => doc.data() as Map<String, dynamic>)
+                .toList();
+
+            sortedUserData.sort((a, b) {
+              bool aPendingMatch = matchRequests.any((matchRequest) =>
+                  matchRequest['sender'] == a['email'] &&
+                  matchRequest['receiver'] == loggedInUserEmail &&
+                  matchRequest['status'] == 'pending');
+
+              bool bPendingMatch = matchRequests.any((matchRequest) =>
+                  matchRequest['sender'] == b['email'] &&
+                  matchRequest['receiver'] == loggedInUserEmail &&
+                  matchRequest['status'] == 'pending');
+
+              if (aPendingMatch && !bPendingMatch) {
+                return -1; // a comes before b
+              } else if (!aPendingMatch && bPendingMatch) {
+                return 1; // b comes before a
+              } else {
+                return 0; // no change
+              }
+            });
+
             setState(() {
-              userData = querySnapshot.docs
-                  .where((doc) {
-                    var data = doc.data() as Map<String, dynamic>;
-                    return data['email'] != loggedInUserEmail &&
-                        data['gender'] == loggedInUserDatingPreference &&
-                        data['datingPreference'] == loggedInUserGender;
-                  })
-                  .where((doc) {
-                    // Check if there is no match request between the logged-in user and the current user
-                    return !isMatched(
-                        loggedInUserEmail, doc['email'], matchRequests);
-                  })
-                  .map<Map<String, dynamic>>(
-                      (doc) => doc.data() as Map<String, dynamic>)
-                  .toList();
+              userData = sortedUserData;
             });
           }
         }
@@ -159,6 +182,47 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _swipeLeft() {
+    setState(() {
+      _updateMatchRequest(userData[currentIndex]['email']);
+
+      currentIndex = (currentIndex + 1) % userData.length;
+    });
+  }
+
+  void _swipeRight() {
+    setState(() {
+      _updateMatchRequest(userData[currentIndex]['email']);
+
+      currentIndex = (currentIndex - 1) % userData.length;
+    });
+  }
+
+  Future<void> _updateMatchRequest(String receiverEmail) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String senderEmail = prefs.getString('userEmail') ?? '';
+
+      if (senderEmail.isNotEmpty) {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection('matchRequests')
+            .where('sender', isEqualTo: receiverEmail)
+            .where('receiver', isEqualTo: senderEmail)
+            .where('status', isEqualTo: 'pending')
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          // If there's a pending match request, update its status
+          for (var doc in querySnapshot.docs) {
+            await doc.reference.update({'status': 'pendingDone'});
+          }
+        }
+      }
+    } catch (e) {
+      print("Error updating match request: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -224,117 +288,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? Center(
                         child: CircularProgressIndicator(),
                       )
-                    : Stack(
-                        children: [
-                          // Background Image
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16.0),
-                              image: DecorationImage(
-                                image: NetworkImage(
-                                  userData[currentIndex]['imageUrls'] != null &&
-                                          userData[currentIndex]['imageUrls']
-                                              .isNotEmpty
-                                      ? userData[currentIndex]['imageUrls'][0]
-                                      : 'https://example.com/placeholder_image.jpg',
-                                ),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16.0),
-                              gradient: LinearGradient(
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                                colors: [
-                                  Colors.black.withOpacity(0.7),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        userData[currentIndex]['name'] ??
-                                            'Unknown',
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(right: 30),
-                                        child: IconButton(
-                                          icon: Icon(Icons.info_outline,
-                                              size: 40, color: Colors.white),
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => AboutPage(
-                                                    userData:
-                                                        userData[currentIndex]),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Text(
-                                    userData[currentIndex]['bio'] ??
-                                        'No bio available',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(height: 16),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: List.generate(
-                                      userData[currentIndex]['imageUrls'] !=
-                                              null
-                                          ? userData[currentIndex]['imageUrls']
-                                              .length
-                                          : 0,
-                                      (index) => Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 8),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            _openImageZoom(
-                                              context,
-                                              userData[currentIndex]
-                                                  ['imageUrls'][index],
-                                            );
-                                          },
-                                          child: Image.network(
-                                            userData[currentIndex]['imageUrls']
-                                                [index],
-                                            width: 50,
-                                            height: 60,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                    : GestureDetector(
+                        onHorizontalDragEnd: (details) {
+                          if (details.primaryVelocity! > 0) {
+                            _swipeRight();
+                          } else if (details.primaryVelocity! < 0) {
+                            _swipeLeft();
+                          }
+                        },
+                        child: User(
+                          userData: userData,
+                          currentIndex: currentIndex,
+                        ),
                       ),
               ),
             ),
@@ -368,7 +333,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                       ),
-                      Icon(Icons.watch_later),
+                      IconButton(
+                        icon: Icon(Icons.watch_later),
+                        onPressed: () {
+                          _waitUserRequest(userData[currentIndex]['email']);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('User Saved'),
+                              duration: Duration(
+                                  seconds: 2), // Optional: Set the duration
+                            ),
+                          );
+                        },
+                      ),
                       Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
@@ -387,6 +364,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icon(Icons.close, color: Colors.black),
                         onPressed: () {
                           setState(() {
+                            _updateMatchRequest(
+                                userData[currentIndex]['email']);
                             currentIndex = (currentIndex + 1) % userData.length;
                           });
                         },
@@ -410,28 +389,64 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+Future<void> _waitUserRequest(String receiverEmail) async {
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String senderEmail = prefs.getString('userEmail') ?? '';
+
+    if (senderEmail.isNotEmpty) {
+      // Store sender and receiver emails in 'waitUsers' collection
+      await FirebaseFirestore.instance.collection('waitUsers').add({
+        'sender': senderEmail,
+        'receiver': receiverEmail,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    }
+  } catch (e) {
+    print("Error updating match request: $e");
+  }
+}
+
 void _sendMatchRequest(BuildContext context, String receiverEmail) async {
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String senderEmail = prefs.getString('userEmail') ?? '';
 
     if (senderEmail.isNotEmpty) {
-      await FirebaseFirestore.instance.collection('matchRequests').add({
-        'sender': senderEmail,
-        'receiver': receiverEmail,
-        'status': 'pending',
-        'timestamp': FieldValue.serverTimestamp(), // Use server timestamp
-      });
+      // Check if a match request already exists
+      QuerySnapshot existingRequestsSnapshot = await FirebaseFirestore.instance
+          .collection('matchRequests')
+          .where('sender', isEqualTo: receiverEmail)
+          .where('receiver', isEqualTo: senderEmail)
+          .where('status', whereIn: ['pending', 'pendingDone']).get();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Match request sent'),
-          duration: Duration(seconds: 2), // Optional: Set the duration
-        ),
-      );
+      if (existingRequestsSnapshot.docs.isNotEmpty) {
+        // If a match request exists, update the status to 'matched'
+        for (var doc in existingRequestsSnapshot.docs) {
+          await doc.reference.update({'status': 'matched'});
+        }
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return MatchPopup();
+          },
+        );
+      } else {
+        // If no match request exists, send a new request
+        await FirebaseFirestore.instance.collection('matchRequests').add({
+          'sender': senderEmail,
+          'receiver': receiverEmail,
+          'status': 'pending',
+          'timestamp': FieldValue.serverTimestamp(), // Use server timestamp
+        });
 
-      // You may also want to show a success message or update UI accordingly
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Match request sent')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Match request sent'),
+            duration: Duration(seconds: 2), // Optional: Set the duration
+          ),
+        );
+      }
     }
   } catch (e) {
     print("Error sending match request: $e");
@@ -478,4 +493,123 @@ void _openImageZoom(BuildContext context, String imageUrl) {
       );
     },
   );
+}
+
+class User extends StatelessWidget {
+  final List<Map<String, dynamic>> userData;
+  final int currentIndex;
+
+  User({required this.userData, required this.currentIndex});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.0),
+              image: DecorationImage(
+                image: NetworkImage(
+                  userData[currentIndex]['imageUrls'] != null &&
+                          userData[currentIndex]['imageUrls'].isNotEmpty
+                      ? userData[currentIndex]['imageUrls'][0]
+                      : 'https://example.com/placeholder_image.jpg',
+                ),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.0),
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  Colors.black.withOpacity(0.7),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        userData[currentIndex]['name'] ?? 'Unknown',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(right: 30),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.info_outline,
+                            size: 40,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AboutPage(
+                                  userData: userData[currentIndex],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    userData[currentIndex]['bio'] ?? 'No bio available',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: List.generate(
+                      userData[currentIndex]['imageUrls'] != null
+                          ? userData[currentIndex]['imageUrls'].length
+                          : 0,
+                      (index) => Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: GestureDetector(
+                          onTap: () {
+                            _openImageZoom(
+                              context,
+                              userData[currentIndex]['imageUrls'][index],
+                            );
+                          },
+                          child: Image.network(
+                            userData[currentIndex]['imageUrls'][index],
+                            width: 50,
+                            height: 60,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

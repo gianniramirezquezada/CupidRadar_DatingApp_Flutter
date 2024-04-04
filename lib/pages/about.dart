@@ -144,8 +144,13 @@ class _AboutPageState extends State<AboutPage> {
                                   ),
                                   Expanded(
                                     child: buildInfoField(
-                                        'Date of Birth', userData['dob'] ?? ''),
+                                      'Hobbies',
+                                      userData['hobbies'] != null
+                                          ? userData['hobbies'].join(', ')
+                                          : 'No hobbies',
+                                    ),
                                   ),
+                                 
                                 ],
                               ),
                               Row(
@@ -157,10 +162,11 @@ class _AboutPageState extends State<AboutPage> {
                                   SizedBox(
                                     width: 16,
                                   ),
-                                  Expanded(
-                                    child: buildInfoField('Phone Number',
-                                        userData['phoneNumber'] ?? ''),
+                                   Expanded(
+                                    child: buildInfoField(
+                                        'Date of Birth', userData['dob'] ?? ''),
                                   ),
+                                  
                                 ],
                               ),
                               Row(
@@ -179,12 +185,6 @@ class _AboutPageState extends State<AboutPage> {
                                 ],
                               ),
                             ],
-                          ),
-                          buildInfoField(
-                            'Hobbies',
-                            userData['hobbies'] != null
-                                ? userData['hobbies'].join(', ')
-                                : 'No hobbies',
                           ),
                           SizedBox(height: 16),
                           if (imageUrls.isNotEmpty)

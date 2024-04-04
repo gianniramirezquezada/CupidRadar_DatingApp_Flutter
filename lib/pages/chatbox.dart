@@ -49,69 +49,54 @@ class _ChatBoxState extends State<ChatBox> {
           },
         ),
       ),
-      body: loggedInUserEmail.isEmpty
-          ? Center(
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('matchRequests')
+            .where('status', isEqualTo: 'matched')
+            .snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
               child: CircularProgressIndicator(),
-            )
-          : StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('matchRequests')
-                  .where('status', isEqualTo: 'matched')
-                  .snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Error: ${snapshot.error}',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  );
-                }
+            );
+          }
 
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+          
 
-                if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No pending match requests.',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  );
-                }
+          return ListView(
+            children: snapshot.data!.docs.map((doc) {
+              Map<String, dynamic> requestData =
+                  doc.data() as Map<String, dynamic>;
 
-                return ListView(
-                  children: snapshot.data!.docs.map((doc) {
-                    Map<String, dynamic> requestData =
-                        doc.data() as Map<String, dynamic>;
+              String senderEmail = requestData['sender'];
+              String receiverEmail = requestData['receiver'];
 
-                    String senderEmail = requestData['sender'];
-                    String receiverEmail = requestData['receiver'];
+              // Check if loggedInUserEmail is either sender or receiver
+              if (senderEmail == loggedInUserEmail ||
+                  receiverEmail == loggedInUserEmail) {
+                String oppositeUserEmail = senderEmail == loggedInUserEmail
+                    ? receiverEmail
+                    : senderEmail;
 
-                    // Check if loggedInUserEmail is either sender or receiver
-                    if (senderEmail == loggedInUserEmail ||
-                        receiverEmail == loggedInUserEmail) {
-                      String oppositeUserEmail =
-                          senderEmail == loggedInUserEmail
-                              ? receiverEmail
-                              : senderEmail;
-
-                      return UserCard(
-                        oppositeUserEmail: oppositeUserEmail,
-                      );
-                    }
-
-                    return SizedBox.shrink();
-                  }).toList(),
+                return UserCard(
+                  oppositeUserEmail: oppositeUserEmail,
                 );
-              },
-            ),
+              }
+
+              return SizedBox.shrink();
+            }).toList(),
+          );
+        },
+      ),
     );
   }
 }

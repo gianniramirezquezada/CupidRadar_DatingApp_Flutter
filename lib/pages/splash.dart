@@ -18,7 +18,6 @@ class _SplashScreenState extends State<SplashScreen> {
       checkLoginStatus();
     });
   }
-
   Future<void> checkLoginStatus() async {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();

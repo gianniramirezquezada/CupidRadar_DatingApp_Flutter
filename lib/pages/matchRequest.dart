@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:romanceradar/pages/matchedPopup.dart';
 // import 'package:romanceradar/pages/about.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,7 +29,7 @@ class _MatchRequestsPageState extends State<MatchRequestsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Match Requests'),
+        title: Text('Liked Users'),
       ),
       body: loggedInUserEmail.isEmpty
           ? Center(
@@ -36,9 +37,8 @@ class _MatchRequestsPageState extends State<MatchRequestsPage> {
             )
           : StreamBuilder(
               stream: FirebaseFirestore.instance
-                  .collection('matchRequests')
-                  .where('receiver', isEqualTo: loggedInUserEmail)
-                  .where('status', isEqualTo: 'pending')
+                  .collection('waitUsers')
+                  .where('sender', isEqualTo: loggedInUserEmail)
                   .snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasError) {
@@ -55,7 +55,7 @@ class _MatchRequestsPageState extends State<MatchRequestsPage> {
 
                 if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
                   return Center(
-                    child: Text('No pending match requests.'),
+                    child: Text('No Users'),
                   );
                 }
 
@@ -64,8 +64,7 @@ class _MatchRequestsPageState extends State<MatchRequestsPage> {
                     Map<String, dynamic> data =
                         doc.data() as Map<String, dynamic>;
                     return MatchRequestCard(
-                      senderEmail: data['sender'],
-                      status: data['status'],
+                      senderEmail: data['receiver'],
                     );
                   }).toList(),
                 );
@@ -77,11 +76,9 @@ class _MatchRequestsPageState extends State<MatchRequestsPage> {
 
 class MatchRequestCard extends StatefulWidget {
   final String senderEmail;
-  final String status;
 
   MatchRequestCard({
     required this.senderEmail,
-    required this.status,
   });
 
   @override
@@ -91,6 +88,7 @@ class MatchRequestCard extends StatefulWidget {
 class _MatchRequestCardState extends State<MatchRequestCard> {
   late String senderName = '';
   late String senderDpUrl = '';
+  late String userEmail = '';
 
   @override
   void initState() {
@@ -111,6 +109,7 @@ class _MatchRequestCardState extends State<MatchRequestCard> {
             userSnapshot.docs.first.data() as Map<String, dynamic>;
         setState(() {
           senderName = userData['name'] ?? 'Unknown';
+          userEmail = userData['email'] ?? 'Unknown';
           senderDpUrl =
               userData['imageUrls'] != null && userData['imageUrls'].isNotEmpty
                   ? userData['imageUrls'][0]
@@ -143,9 +142,10 @@ class _MatchRequestCardState extends State<MatchRequestCard> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: Icon(Icons.check, color: Colors.green),
+              icon: Icon(Icons.add, color: Colors.green),
               onPressed: () {
-                _updateStatus('matched');
+                checkDocuments(userEmail);
+
                 // Handle accept action
                 // You can implement the logic here
               },
@@ -154,6 +154,7 @@ class _MatchRequestCardState extends State<MatchRequestCard> {
               icon: Icon(Icons.close, color: Colors.red),
               onPressed: () {
                 _deleteUser();
+
                 // Handle decline action
                 // You can implement the logic here
               },
@@ -171,42 +172,128 @@ class _MatchRequestCardState extends State<MatchRequestCard> {
     // Navigator.push(
     //   context,
     //   MaterialPageRoute(
-    //     // builder: (context) => AboutPage(userData: userData[currentIndex]),
+    //     builder: (context) => AboutPage(userData: userData[currentIndex]),
     //   ),
     // );
   }
 
-  void _updateStatus(String newStatus) {
-    // Update the status to 'matched'
-    FirebaseFirestore.instance
-        .collection('matchRequests')
-        .where('sender', isEqualTo: widget.senderEmail)
-        .where('status', isEqualTo: 'pending')
-        .get()
-        .then((querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        doc.reference.update({'status': newStatus}).then((value) {
-          print('Status updated to $newStatus');
-          // You can add further logic after updating the status
-        }).catchError((error) {
-          print('Error updating status: $error');
-        });
-      });
-    }).catchError((error) {
-      print('Error getting documents: $error');
-    });
+  Future<void> checkDocuments(String receiverEmail) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String senderEmail = prefs.getString('userEmail') ?? '';
+      // Reference to Firestore collection
+      CollectionReference matchRequestsCollection =
+          FirebaseFirestore.instance.collection('matchRequests');
+
+      // Query for receiver's document
+      QuerySnapshot Snapshot = await matchRequestsCollection
+          .where('receiver', isEqualTo: receiverEmail)
+          .where('sender', isEqualTo: senderEmail)
+          .limit(1)
+          .get();
+
+      // Check if both sender and receiver documents exist
+      if (Snapshot.docs.isNotEmpty) {
+         ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Request already sended'),
+            duration: Duration(seconds: 2), // Optional: Set the duration
+          ),
+        );
+         _deleteWaitUser(senderEmail, receiverEmail);
+      } else {
+        _sendMatchRequest(receiverEmail);
+      }
+    } catch (e) {
+      print('Error checking documents: $e');
+    }
+  }
+
+  void _sendMatchRequest(String receiverEmail) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String senderEmail = prefs.getString('userEmail') ?? '';
+
+      if (senderEmail.isNotEmpty) {
+        // Check if a match request already exists
+        QuerySnapshot existingRequestsSnapshot = await FirebaseFirestore
+            .instance
+            .collection('matchRequests')
+            .where('sender', isEqualTo: receiverEmail)
+            .where('receiver', isEqualTo: senderEmail)
+            .where('status', whereIn: ['pending', 'pendingDone']).get();
+
+        if (existingRequestsSnapshot.docs.isNotEmpty) {
+          // If a match request exists, update the status to 'matched'
+          for (var doc in existingRequestsSnapshot.docs) {
+            await doc.reference.update({'status': 'matched'});
+          }
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return MatchPopup();
+            },
+          );
+        } else {
+          // If no match request exists, send a new request
+          await FirebaseFirestore.instance.collection('matchRequests').add({
+            'sender': senderEmail,
+            'receiver': receiverEmail,
+            'status': 'pending',
+            'timestamp': FieldValue.serverTimestamp(), // Use server timestamp
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Match request sent'),
+              duration: Duration(seconds: 2), // Optional: Set the duration
+            ),
+          );
+        }
+        _deleteWaitUser(senderEmail, receiverEmail);
+       
+      }
+    } catch (e) {
+      print("Error sending match request: $e");
+      // Handle the error, e.g., show an error message to the user
+    }
+  }
+
+  Future<void> _deleteWaitUser(String senderEmail, String receiverEmail) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('waitUsers')
+          .where('sender', isEqualTo: senderEmail)
+          .where('receiver', isEqualTo: receiverEmail)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Delete the document
+        await querySnapshot.docs.first.reference.delete();
+          setState(() {
+            _fetchSenderDetails();
+            // Update any state variables here if needed
+          });
+      }
+    } catch (e) {
+      print("Error deleting waitUser document: $e");
+    }
   }
 
   void _deleteUser() {
     // Delete the user from matchRequests collection using a unique identifier
     FirebaseFirestore.instance
-        .collection('matchRequests')
-        .where('sender', isEqualTo: widget.senderEmail)
+        .collection('waitUsers')
+        .where('receiver', isEqualTo: widget.senderEmail)
         .get()
         .then((querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         doc.reference.delete().then((value) {
           print('User deleted successfully');
+          setState(() {
+            _fetchSenderDetails();
+            // Update any state variables here if needed
+          });
           // You can add further logic after deleting the user
         }).catchError((error) {
           print('Error deleting user: $error');
