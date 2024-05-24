@@ -38,7 +38,7 @@
 
 <h2>🚀 Demo</h2>
 
-[Check out my LinkedIn post](https://www.linkedin.com/posts/het-rojivadiya-181ab0226_react-python-nodejs-activity-7127509127462871040-70C8?utm_source=share&utm_medium=member_desktop)
+[Check out my LinkedIn post](https://www.linkedin.com/posts/het-rojivadiya-181ab0226_promptengineering-flutter-firebase-activity-7186766072522432512-B9rN?utm_source=share&utm_medium=member_desktop)
 
 <h2>Project Screenshots:</h2>
 
