@@ -42,47 +42,22 @@
 
 <h2>Project Screenshots:</h2>
 
-### Image 1
-![Image 1](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/1.jpg)
-
-### Image 2
-![Image 2](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/2.jpg)
-
-### Image 3
-![Image 3](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/3.jpg)
-
-### Image 4
-![Image 4](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/4.jpg)
-
-### Image 5
-![Image 5](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/5.jpg)
-
-### Image 6
-![Image 6](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/6.jpg)
-
-### Image 7
-![Image 7](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/7.jpg)
-
-### Image 8
-![Image 8](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/8.jpg)
-
-### Image 9
-![Image 9](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/9.jpg)
-
-### Image 10
-![Image 10](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/10.jpg)
-
-### Image 11
-![Image 11](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/11.jpg)
-
-### Image 12
-![Image 12](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/12.jpg)
-
-### Image 13
-![Image 13](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/13.jpg)
-
-### Image 14
-![Image 14](https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/14.jpg)
+<p align="center">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/1.jpg" width="200" alt="Image 1">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/2.jpg" width="200" alt="Image 2">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/3.jpg" width="200" alt="Image 3">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/4.jpg" width="200" alt="Image 4">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/5.jpg" width="200" alt="Image 5">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/6.jpg" width="200" alt="Image 6">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/7.jpg" width="200" alt="Image 7">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/8.jpg" width="200" alt="Image 8">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/9.jpg" width="200" alt="Image 9">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/10.jpg" width="200" alt="Image 10">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/11.jpg" width="200" alt="Image 11">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/12.jpg" width="200" alt="Image 12">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/13.jpg" width="200" alt="Image 13">
+  <img src="https://github.com/HetRojivadiya/CupidRadar_DatingApp_Flutter/blob/master/CupidRadar/14.jpg" width="200" alt="Image 14">
+</p>
 
 <h2>✨ About the Developer</h2>
 <p>Interested in learning more or collaborating on future projects? Feel free to reach out—I'm always open to new opportunities and partnerships!</p>
