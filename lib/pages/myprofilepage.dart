@@ -226,7 +226,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     ),
                   ),
                   child: Text(
-                    'Change Profile Picture',
+                    'Cambia foto profilo',
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
@@ -251,7 +251,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         await uploadImageToStorage(newImagePath, index);
       }
     } else {
-      print('Image picking canceled');
+      print('Immagine cancellata');
     }
   }
 
@@ -325,8 +325,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Profile'),
-        backgroundColor: Colors.pink[100],
+        title: Text('Gestione profilo'),
+        backgroundColor: Colors.blueAccent,
         actions: [
           Container(
             margin: EdgeInsets.only(right: 15),
@@ -353,8 +353,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.pink[100]!,
-                Colors.redAccent,
+                Colors.white,
+                Colors.lightBlueAccent,
               ],
             ),
           ),
@@ -402,7 +402,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                               TextFormField(
                                                 controller: nameController,
                                                 decoration: InputDecoration(
-                                                  hintText: 'Enter your name',
+                                                  hintText: 'Scrivi il tuo nome',
                                                 ),
                                               )
                                             else
@@ -411,7 +411,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                                 style: TextStyle(
                                                   fontSize: 26,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.redAccent,
+                                                  color: Colors.blue,
                                                 ),
                                               ),
                                           ],
@@ -423,18 +423,18 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               ),
                             buildEditField('Bio', 'bio', userData['bio'] ?? ''),
                             buildEditField(
-                                'Date of Birth', 'dob', userData['dob'] ?? '',
+                                'Data di nascità', 'dob', userData['dob'] ?? '',
                                 onTap: () {
                               if (isEditMode) {
                                 _openDatePicker(context);
                               }
                             }),
-                            buildEditField('Address', 'address',
+                            buildEditField('Città', 'address',
                                 userData['address'] ?? ''),
-                            buildEditField('Phone Number', 'phoneNumber',
+                            buildEditField('Numero telefono', 'phoneNumber',
                                 userData['phoneNumber'] ?? ''),
                             buildEditField(
-                              'Hobbies',
+                              'attività',
                               'hobbies',
                               userData['hobbies'] != null
                                   ? userData['hobbies'].join(', ')
@@ -523,7 +523,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.redAccent,
+              color: Colors.blue,
             ),
           ),
           SizedBox(height: 4),

@@ -27,7 +27,6 @@ class _ThirdScreenState extends State<ThirdScreen> {
   TextEditingController customHobbyController = TextEditingController();
   bool showCustomHobbyContainer = false;
 
-  // Controllers for dog information
   TextEditingController dogNameController = TextEditingController();
   TextEditingController dogBreedController = TextEditingController();
   TextEditingController dogAgeController = TextEditingController();
@@ -115,6 +114,29 @@ class _ThirdScreenState extends State<ThirdScreen> {
         );
         return false;
       }
+
+      // Validazione delle informazioni del cane
+      if (dogNameController.text.isEmpty || dogBreedController.text.isEmpty || dogAgeController.text.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Informazioni del Cane Mancanti'),
+              content: Text('Per favore inserisci tutte le informazioni del cane.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        return false;
+      }
+
       return true;
     }
     return false;
@@ -135,7 +157,6 @@ class _ThirdScreenState extends State<ThirdScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Dog Information
                 TextFormField(
                   controller: dogNameController,
                   decoration: InputDecoration(

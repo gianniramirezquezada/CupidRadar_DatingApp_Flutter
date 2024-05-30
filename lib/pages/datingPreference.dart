@@ -34,9 +34,9 @@ class DatingPreferenceSelection extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Preferences',
+                  'Preferenza sui cani',
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 23,
                     fontWeight: FontWeight.bold,
                     color: Color.fromARGB(221, 231, 45, 45),
                   ),
@@ -64,7 +64,6 @@ class DatingPreferenceSelection extends StatelessWidget {
           ),
           buildListTile('Male', Icons.male, Colors.blue),
           buildListTile('Female', Icons.female, Colors.pink),
-          buildListTile('Any', Icons.transgender, Colors.grey),
         ],
       ),
     );

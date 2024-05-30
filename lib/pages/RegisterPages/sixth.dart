@@ -132,7 +132,7 @@ class _SixthScreenState extends State<SixthScreen> {
                   
                   children: [
                     Text(
-                      'Please check your connection',
+                      'Controlla la tua connessione',
                       style: TextStyle(fontSize: 16.0),
                       textAlign: TextAlign.center,
                     ),
@@ -155,7 +155,7 @@ class _SixthScreenState extends State<SixthScreen> {
                         ),
                       ),
                       child: Text(
-                        'Try Again',
+                        'Riprova',
                         style: TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold,
@@ -175,7 +175,7 @@ class _SixthScreenState extends State<SixthScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'It may take a while. We are setting up your account...',
+                            'Caricamento. Stiamo creando il tuo account',
                             style: TextStyle(fontSize: 16.0),
                             textAlign: TextAlign.center,
                           ),
@@ -200,7 +200,7 @@ class _SixthScreenState extends State<SixthScreen> {
                         ),
                         SizedBox(height: 20.0),
                         Text(
-                          'Your account is successfully created!',
+                          'Il tuo Account è stato creato con successo',
                           style: TextStyle(fontSize: 18.0),
                           textAlign: TextAlign.center,
                         ),

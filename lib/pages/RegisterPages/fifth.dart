@@ -108,8 +108,8 @@ class _FifthScreenState extends State<FifthScreen> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('Validation Error'),
-                          content: Text('Please fill in all fields.'),
+                          title: Text('Error'),
+                          content: Text('Completare ogni campo'),
                           actions: [
                             TextButton(
                               onPressed: () {

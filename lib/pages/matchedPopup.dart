@@ -71,7 +71,7 @@ class MatchPopup extends StatelessWidget {
               alignment: Alignment.topRight,
               child: CircleAvatar(
                 radius: 16.0,
-                backgroundColor: Colors.red,
+                backgroundColor: Colors.blue,
                 child: Icon(Icons.close, color: Colors.white),
               ),
             ),

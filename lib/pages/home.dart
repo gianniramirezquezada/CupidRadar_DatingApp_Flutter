@@ -245,23 +245,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     },
-                    padding: EdgeInsets.only(top: 8, right: 8),
+                    padding: EdgeInsets.only(top: 40, right: 8), // Adjusted padding
                   ),
-
                   Container(
-                    margin: EdgeInsets.only(right: 20.0, top: 10),
+                    margin: EdgeInsets.only(right: 10.0, top: 20), // Adjusted margin
                     child: Center(
                       child: Text(
                         'POCHI',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 24, // Puoi regolare la dimensione del testo a tuo piacimento
+                          fontSize: 24,
                         ),
                       ),
                     ),
                   ),
-
-
                   IconButton(
                     icon: Icon(Icons.message, size: 40),
                     onPressed: () {
@@ -272,11 +269,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     },
-                    padding: EdgeInsets.only(top: 8, right: 8),
+                    padding: EdgeInsets.only(top: 50, right: 8), // Adjusted padding
                   ),
                 ],
               ),
             ),
+
 
             // User image, name, bio, and additional images
             Flexible(
@@ -352,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: IconButton(
                           icon:
-                              Icon(Icons.favorite, size: 40, color: Colors.red),
+                              Icon(Icons.pets_outlined, size: 40, color: Colors.black),
                           onPressed: () {
                             _sendMatchRequest(
                                 context, userData[currentIndex]['email']);
