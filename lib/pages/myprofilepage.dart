@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +25,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
   late TextEditingController addressController = TextEditingController();
   late TextEditingController phoneNumberController = TextEditingController();
   late TextEditingController genderController = TextEditingController();
+
+  late TextEditingController dogNameController = TextEditingController();
+  late TextEditingController dogBreedController = TextEditingController();
+  late TextEditingController dogAgeController = TextEditingController();
+
 
   late TextEditingController hobbiesController = TextEditingController();
   bool isEditMode = false;
@@ -69,7 +75,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           genderController.text = userData['gender'] ?? '';
 
           hobbiesController.text =
-              userData['hobbies'] != null ? userData['hobbies'].join(', ') : '';
+          userData['hobbies'] != null ? userData['hobbies'].join(', ') : '';
         });
       }
     } catch (e) {
@@ -149,7 +155,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
         List<String> updatedImageUrls =
-            List<String>.from(userData['imageUrls'] ?? []);
+        List<String>.from(userData['imageUrls'] ?? []);
 
         updatedImageUrls[0] = newUrl;
 
@@ -196,10 +202,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ),
                   pageOptions: imageUrls
                       .map((url) => PhotoViewGalleryPageOptions(
-                            imageProvider: NetworkImage(url),
-                            minScale: PhotoViewComputedScale.contained * 2,
-                            maxScale: PhotoViewComputedScale.covered * 3,
-                          ))
+                    imageProvider: NetworkImage(url),
+                    minScale: PhotoViewComputedScale.contained * 2,
+                    maxScale: PhotoViewComputedScale.covered * 3,
+                  ))
                       .toList(),
                 ),
               ),
@@ -265,7 +271,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           .child('user_images/$userEmail/image_$index.jpg');
 
       firebase_storage.UploadTask uploadTask =
-          storageReference.putFile(imageFile);
+      storageReference.putFile(imageFile);
 
       await uploadTask.whenComplete(() async {
         String imageUrl = await storageReference.getDownloadURL();
@@ -294,7 +300,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
         List<String> updatedImageUrls =
-            List<String>.from(userData['imageUrls'] ?? []);
+        List<String>.from(userData['imageUrls'] ?? []);
 
         if (index >= 0 && index < updatedImageUrls.length) {
           updatedImageUrls[index] = newUrl;
@@ -361,150 +367,164 @@ class _MyProfilePageState extends State<MyProfilePage> {
           child: Center(
             child: userEmail.isNotEmpty
                 ? Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: ListView(
-                          shrinkWrap: true,
-                          children: [
-                            if (imageUrls.isNotEmpty)
-                              Container(
-                                height: 150,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _openImageZoom(context, imageUrls.first, 0);
-                                  },
-                                  child: Row(children: [
-                                    ClipRRect(
-                                      borderRadius:
-                                          BorderRadius.circular(150.0),
-                                      child: Image.network(
-                                        imageUrls.first,
-                                        height: 150,
-                                        width: 150,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        padding:
-                                            EdgeInsets.only(left: 8, top: 8),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            if (isEditMode)
-                                              TextFormField(
-                                                controller: nameController,
-                                                decoration: InputDecoration(
-                                                  hintText: 'Scrivi il tuo nome',
-                                                ),
-                                              )
-                                            else
-                                              Text(
-                                                userData['name'] ?? '',
-                                                style: TextStyle(
-                                                  fontSize: 26,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.blue,
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ]),
+              padding: const EdgeInsets.all(10.0),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                elevation: 5,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      if (imageUrls.isNotEmpty)
+                        Container(
+                          height: 150,
+                          child: GestureDetector(
+                            onTap: () {
+                              _openImageZoom(context, imageUrls.first, 0);
+                            },
+                            child: Row(children: [
+                              ClipRRect(
+                                borderRadius:
+                                BorderRadius.circular(150.0),
+                                child: Image.network(
+                                  imageUrls.first,
+                                  height: 150,
+                                  width: 150,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                            buildEditField('Bio', 'bio', userData['bio'] ?? ''),
-                            buildEditField(
-                                'Data di nascità', 'dob', userData['dob'] ?? '',
-                                onTap: () {
-                              if (isEditMode) {
-                                _openDatePicker(context);
-                              }
-                            }),
-                            buildEditField('Città', 'address',
-                                userData['address'] ?? ''),
-                            buildEditField('Numero telefono', 'phoneNumber',
-                                userData['phoneNumber'] ?? ''),
-                            buildEditField(
-                              'attività',
-                              'hobbies',
-                              userData['hobbies'] != null
-                                  ? userData['hobbies'].join(', ')
-                                  : 'No hobbies',
-                            ),
-                            SizedBox(height: 8),
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  isEditMode = !isEditMode;
-                                });
-
-                                if (!isEditMode) {
-                                  updateUserData();
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                              ),
-                              child: Text(
-                                isEditMode ? 'Save Changes' : 'Edit Profile',
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.white),
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                            if (imageUrls.isNotEmpty)
-                              Container(
-                                height: 200,
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  children:
-                                      imageUrls.asMap().entries.map((entry) {
-                                    int index = entry.key;
-                                    String imageUrl = entry.value;
-
-                                    return GestureDetector(
-                                      onTap: () {
-                                        _openImageZoom(
-                                            context, imageUrl, index);
-                                      },
-                                      child: Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                          child: Image.network(
-                                            imageUrl,
-                                            height: 200,
-                                            width: 200,
-                                            fit: BoxFit.cover,
+                              Expanded(
+                                child: Container(
+                                  padding:
+                                  EdgeInsets.only(left: 8, top: 8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      if (isEditMode)
+                                        TextFormField(
+                                          controller: nameController,
+                                          decoration: InputDecoration(
+                                            hintText: 'Scrivi il tuo nome',
+                                          ),
+                                        )
+                                      else
+                                        Text(
+                                          userData['name'] ?? '',
+                                          style: TextStyle(
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  }).toList(),
+                                    ],
+                                  ),
                                 ),
                               ),
-                          ],
+                            ]),
+                          ),
+                        ),
+                      buildEditField('Bio', 'bio', userData['bio'] ?? ''),
+                      buildEditField(
+                          'Data di nascità', 'dob', userData['dob'] ?? '',
+                          onTap: () {
+                            if (isEditMode) {
+                              _openDatePicker(context);
+                            }
+                          }),
+                      buildEditField('Città', 'address',
+                          userData['address'] ?? ''),
+                      buildEditField('Numero telefono', 'phoneNumber',
+                          userData['phoneNumber'] ?? ''),
+
+                      Container(
+                        width: 600, // Assicurati che la larghezza della linea corrisponda alla larghezza dell'immagine
+                        height: 2.0, // Altezza della linea
+                        color: Colors.blue, // Colore della linea
+                      ),
+
+                      //nome cane
+                      //razza
+                      //anni del cane
+                      buildEditField('Nome del cane', 'dogName', dogNameController.text),
+                      buildEditField('Razza del cane', 'dogBreed', dogBreedController.text),
+                      buildEditField('Età del cane', 'dogAge', dogAgeController.text),
+
+                      buildEditField(
+                        'attività',
+                        'hobbies',
+                        userData['hobbies'] != null
+                            ? userData['hobbies'].join(', ')
+                            : 'No hobbies',
+                      ),
+                      SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isEditMode = !isEditMode;
+                          });
+
+                          if (!isEditMode) {
+                            updateUserData();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        child: Text(
+                          isEditMode ? 'Save Changes' : 'Edit Profile',
+                          style: TextStyle(
+                              fontSize: 16, color: Colors.white),
                         ),
                       ),
-                    ),
-                  )
-                : Center(
-                    child: Text('User email not found.',
-                        style: TextStyle(fontSize: 18, color: Colors.white)),
+                      SizedBox(height: 16),
+                      if (imageUrls.isNotEmpty)
+                        Container(
+                          height: 200,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children:
+                            imageUrls.asMap().entries.map((entry) {
+                              int index = entry.key;
+                              String imageUrl = entry.value;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  _openImageZoom(
+                                      context, imageUrl, index);
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: ClipRRect(
+                                    borderRadius:
+                                    BorderRadius.circular(8.0),
+                                    child: Image.network(
+                                      imageUrl,
+                                      height: 200,
+                                      width: 200,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                    ],
                   ),
+                ),
+              ),
+            )
+                : Center(
+              child: Text('User email not found.',
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
+            ),
           ),
         ),
       ),
@@ -531,23 +551,23 @@ class _MyProfilePageState extends State<MyProfilePage> {
             dropdown
                 ? buildDropdownField(label, field)
                 : GestureDetector(
-                    onTap: onTap,
-                    child: TextFormField(
-                      onTap: onTap,
-                      controller: field == 'bio'
-                          ? bioController
-                          : field == 'dob'
-                              ? dobController
-                              : field == 'address'
-                                  ? addressController
-                                  : field == 'phoneNumber'
-                                      ? phoneNumberController
-                                      : hobbiesController,
-                      decoration: InputDecoration(
-                        hintText: 'Enter $label',
-                      ),
-                    ),
-                  )
+              onTap: onTap,
+              child: TextFormField(
+                onTap: onTap,
+                controller: field == 'bio'
+                    ? bioController
+                    : field == 'dob'
+                    ? dobController
+                    : field == 'address'
+                    ? addressController
+                    : field == 'phoneNumber'
+                    ? phoneNumberController
+                    : hobbiesController,
+                decoration: InputDecoration(
+                  hintText: 'Enter $label',
+                ),
+              ),
+            )
           else
             Text(
               value,
@@ -629,7 +649,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
-      (Route<dynamic> route) => false,
+          (Route<dynamic> route) => false,
     );
   }
 }
