@@ -22,7 +22,7 @@ class _FirstScreenState extends State<FirstScreen> {
 
   Future<void> checkEmailExists() async {
     final QuerySnapshot result = await FirebaseFirestore.instance
-        .collection('users')
+        .collection('utente')
         .where('email', isEqualTo: emailController.text)
         .get();
 
@@ -30,7 +30,7 @@ class _FirstScreenState extends State<FirstScreen> {
       // Email exists in Firestore
       setState(() {
         isEmailExists = true;
-        emailError = 'Email already exists';
+        emailError = 'Email già in uso';
       });
     } else {
       // Email does not exist in Firestore
@@ -45,7 +45,7 @@ class _FirstScreenState extends State<FirstScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Personal Information'),
+        title: Text('Informazioni personali'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -65,7 +65,7 @@ class _FirstScreenState extends State<FirstScreen> {
               TextFormField(
                 controller: nameController,
                 decoration: InputDecoration(
-                  labelText: 'Name',
+                  labelText: 'Nome',
                   prefixIcon: Icon(Icons.person),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -123,7 +123,7 @@ class _FirstScreenState extends State<FirstScreen> {
                 controller: confirmPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: 'Confirm Password',
+                  labelText: 'Conferma Password',
                   prefixIcon: Icon(Icons.lock),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -156,7 +156,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 130, 108, 255),
+                  backgroundColor: Color.fromARGB(255, 130, 108, 255),
                   padding: EdgeInsets.symmetric(vertical: 15.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),

@@ -220,7 +220,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.redAccent,
+                    backgroundColor: Colors.redAccent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
@@ -452,7 +452,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.redAccent,
+                                backgroundColor: Colors.redAccent,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),

@@ -247,22 +247,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     padding: EdgeInsets.only(top: 8, right: 8),
                   ),
+
                   Container(
-                    margin: EdgeInsets.only(left: 30.0),
-                    child: Image.asset(
-                      'assets/images/heart.png',
-                      width: 55,
-                      height: 55,
+                    margin: EdgeInsets.only(right: 20.0, top: 10),
+                    child: Center(
+                      child: Text(
+                        'POCHI',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24, // Puoi regolare la dimensione del testo a tuo piacimento
+                        ),
+                      ),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(right: 50.0, top: 10),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      width: 100,
-                      height: 100,
-                    ),
-                  ),
+
+
                   IconButton(
                     icon: Icon(Icons.message, size: 40),
                     onPressed: () {

@@ -36,7 +36,7 @@ class _FifthScreenState extends State<FifthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registration - Step 5'),
+        title: Text('Preferenze'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -45,38 +45,38 @@ class _FifthScreenState extends State<FifthScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Image.asset(
-                'assets/images/fifthPage.jpg',
+                'assets/images/fifthPage.png',
                 width: 250,
                 height: 250,
               ),
               _buildDropdown(
-                items: ['Male', 'Female', 'Other'],
+                items: ['Maschio', 'Femmina'],
                 value: selectedGender,
                 onChanged: (value) {
                   setState(() {
                     selectedGender = value;
                   });
                 },
-                hintText: 'Select Gender',
+                hintText: 'Sesso del tuo cane',
               ),
               SizedBox(height: 16.0),
               _buildDropdown(
-                items: ['Male', 'Female', 'Any'],
+                items: ['Maschio', 'Femmina'],
                 value: selectedDatingPreference,
                 onChanged: (value) {
                   setState(() {
                     selectedDatingPreference = value;
                   });
                 },
-                hintText: 'Select Dating Preference',
+                hintText: 'Preferenza degli altri cani',
               ),
               SizedBox(height: 16.0),
               TextField(
                 controller: bioController,
                 maxLines: 5,
                 decoration: InputDecoration(
-                  labelText: 'Bio',
-                  hintText: 'Write something about yourself...',
+                  labelText: 'Bio del cane',
+                  hintText: 'Scrivi tutte le informazioni sul tuo amico',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -98,7 +98,7 @@ class _FifthScreenState extends State<FifthScreen> {
                           selectedImages: widget.selectedImages,
                           selectedGender: selectedGender ?? '',
                           selectedDatingPreference:
-                              selectedDatingPreference ?? '',
+                          selectedDatingPreference ?? '',
                           bio: bioController.text,
                         ),
                       ),
@@ -124,7 +124,7 @@ class _FifthScreenState extends State<FifthScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 130, 108, 255),
+                  backgroundColor: Color.fromARGB(255, 130, 108, 255),
                   padding: EdgeInsets.all(20.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),

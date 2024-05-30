@@ -133,27 +133,35 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
+
               children: [
                 Stack(
                   alignment: Alignment.center,
                   children: [
+
                     Container(
-                      margin: EdgeInsets.only(bottom: 90),
+
+                      margin: EdgeInsets.only(bottom: 50),
                       child: Image.asset(
-                        'assets/images/heart.png',
-                        height: 110,
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 80),
-                      child: Image.asset(
-                        'assets/images/logo.png',
+
+                        'assets/images/zampa.png',
                         height: 150,
                       ),
                     ),
+                    Container(
+                      margin: EdgeInsets.only(top: 250),
+                      child: Text(
+                        'POCHI',
+                        style: TextStyle(
+                          fontSize: 24, // Puoi modificare la dimensione del font come preferisci
+                          fontWeight: FontWeight.bold, // Per il grassetto
+                          letterSpacing: 1.5, // Opzionale, per aumentare lo spazio tra le lettere
+                        ),
+                      ),
+                    )
                   ],
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 10),
                 TextFormField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -191,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                     loginUser(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.redAccent,
+                    backgroundColor: Colors.blue,
                     padding: EdgeInsets.symmetric(vertical: 15.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),

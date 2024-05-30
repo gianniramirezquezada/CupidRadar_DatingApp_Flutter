@@ -28,13 +28,14 @@ class _SecondScreenState extends State<SecondScreen> {
   String? phoneNumberError;
 
   final List<String> allCities = [
-    // Gujarat (GJ)
-    'Ahmedabad', 'Amreli district', 'Anand', 'Banaskantha', 'Bharuch',
-    'Bhavnagar', 'Dahod', 'The Dangs', 'Gandhinagar',
-    'Jamnagar', 'Junagadh', 'Kutch', 'Kheda', 'Mehsana', 'Narmada', 'Navsari',
-    'Patan', 'Panchmahal', 'Porbandar', 'Rajkot',
-    'Sabarkantha', 'Surendranagar', 'Surat', 'Vyara', 'Vadodara', 'Valsad',
+    // Lombardia (LO)
+    'Milano', 'Bergamo', 'Brescia', 'Como', 'Cremona',
+    'Lecco', 'Lodi', 'Mantova', 'Monza',
+    'Pavia', 'Sondrio', 'Varese', 'Busto Arsizio', 'Gallarate', 'Legnano', 'Rho',
+    'Seregno', 'Desio', 'Voghera', 'Cinisello Balsamo',
+    'Sesto San Giovanni', 'Cologno Monzese', 'Abbiategrasso', 'Magenta', 'Gorgonzola', 'Carate Brianza',
   ];
+
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
@@ -56,7 +57,7 @@ class _SecondScreenState extends State<SecondScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Personal Information'),
+        title: Text('Informazioni personali'),
       ),
       body: Container(
         margin: EdgeInsets.only(top: 80.0),
@@ -68,7 +69,7 @@ class _SecondScreenState extends State<SecondScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Your What\'s Your\nNumber?',
+                  'Dati ',
                   style: TextStyle(
                     fontSize: 28.0,
                     fontWeight: FontWeight.bold,
@@ -78,7 +79,7 @@ class _SecondScreenState extends State<SecondScreen> {
                 ),
                 SizedBox(height: 10.0),
                 Text(
-                  'We protect our community by making sure everyone on romanceradar is real.',
+                  'Proteggiamo la nostra comunity assicurandoci che tutti su pochi siano reali.',
                   style: TextStyle(
                     fontSize: 14.0,
                     color: Colors.black54,
@@ -92,7 +93,7 @@ class _SecondScreenState extends State<SecondScreen> {
                   readOnly: true,
                   onTap: () => _selectDate(context),
                   decoration: InputDecoration(
-                    labelText: 'Date of Birth',
+                    labelText: 'Data di nascita',
                     prefixIcon: Icon(Icons.calendar_today),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -104,7 +105,7 @@ class _SecondScreenState extends State<SecondScreen> {
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
                     decoration: InputDecoration(
-                      labelText: 'City',
+                      labelText: 'Città',
                       prefixIcon: Icon(Icons.location_city),
                       border: OutlineInputBorder(),
                       errorText: cityError,
@@ -135,7 +136,7 @@ class _SecondScreenState extends State<SecondScreen> {
                     if (value == null ||
                         value.isEmpty ||
                         !allCities.contains(value)) {
-                      return 'City is required';
+                      return 'Linserimento della città è obbligatoria';
                     }
                     return null;
                   },
@@ -145,7 +146,7 @@ class _SecondScreenState extends State<SecondScreen> {
                   controller: phoneNumberController,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
-                    labelText: 'Phone Number',
+                    labelText: 'Numero di telefono',
                     prefixIcon: Icon(Icons.phone),
                     border: OutlineInputBorder(),
                     errorText: phoneNumberError,
@@ -175,9 +176,9 @@ class _SecondScreenState extends State<SecondScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text('Age Requirement'),
+                              title: Text('Requisiti di età'),
                               content: Text(
-                                  'You must be at least 18 years old to open an account.'),
+                                  'Per creare un accont è neccesario avere minimo 18 anni'),
                               actions: [
                                 TextButton(
                                   onPressed: () {
@@ -193,14 +194,14 @@ class _SecondScreenState extends State<SecondScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Color.fromARGB(255, 130, 108, 255),
+                    backgroundColor: Color.fromARGB(255, 130, 108, 255),
                     padding: EdgeInsets.symmetric(vertical: 15.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
                   child: Text(
-                    'Next',
+                    'Avanti',
                     style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
@@ -221,7 +222,7 @@ class _SecondScreenState extends State<SecondScreen> {
 
     if (dobController.text.isEmpty) {
       setState(() {
-        dobError = 'Date of Birth is required';
+        dobError = 'Data di nascita obbligatoria';
       });
       isValid = false;
     } else {
@@ -233,7 +234,7 @@ class _SecondScreenState extends State<SecondScreen> {
     if (cityController.text.isEmpty ||
         !allCities.contains(cityController.text)) {
       setState(() {
-        cityError = 'Please select a valid city';
+        cityError = 'Scegli una città valida';
       });
       isValid = false;
     } else {
@@ -244,14 +245,14 @@ class _SecondScreenState extends State<SecondScreen> {
 
     if (phoneNumberController.text.isEmpty) {
       setState(() {
-        phoneNumberError = 'Phone Number is required';
+        phoneNumberError = 'Il numero di telefono è obbligatorio';
       });
       isValid = false;
     }
     else if(phoneNumberController.text.length!=10)
     {
        setState(() {
-        phoneNumberError = 'Please Enter a valid phone number';
+        phoneNumberError = 'Inserisci un numero di telefono valido';
       });
       isValid = false;
 

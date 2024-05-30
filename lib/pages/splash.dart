@@ -48,17 +48,11 @@ class _SplashScreenState extends State<SplashScreen> {
                   Container(
                     margin: EdgeInsets.only(bottom: 100),
                     child: Image.asset(
-                      'assets/images/heart.png',
+                      'assets/images/zampa.png',
                       height: 110,
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(top: 80),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      height: 150,
-                    ),
-                  ),
+
                 ],
               ),
             ],

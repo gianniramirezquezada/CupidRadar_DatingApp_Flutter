@@ -148,7 +148,7 @@ class _SixthScreenState extends State<SixthScreen> {
                             Timer(Duration(seconds: 60), _handleTimeout);
                       },
                       style: ElevatedButton.styleFrom(
-                        primary: Color.fromARGB(255, 130, 108, 255),
+                        backgroundColor: Color.fromARGB(255, 130, 108, 255),
                         padding: EdgeInsets.all(15.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
@@ -215,7 +215,7 @@ class _SixthScreenState extends State<SixthScreen> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Color.fromARGB(255, 130, 108, 255),
+                            backgroundColor: Color.fromARGB(255, 130, 108, 255),
                             padding: EdgeInsets.symmetric(vertical: 15.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.0),

@@ -27,14 +27,21 @@ class _ThirdScreenState extends State<ThirdScreen> {
   TextEditingController customHobbyController = TextEditingController();
   bool showCustomHobbyContainer = false;
 
+  // Controllers for dog information
+  TextEditingController dogNameController = TextEditingController();
+  TextEditingController dogBreedController = TextEditingController();
+  TextEditingController dogAgeController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
   List<Map<String, dynamic>> predefinedHobbies = [
-    {'name': 'Reading', 'icon': Icons.book, 'color': Colors.blue},
-    {'name': 'Running', 'icon': Icons.directions_run, 'color': Colors.green},
-    {'name': 'Cooking', 'icon': Icons.restaurant, 'color': Colors.orange},
-    {'name': 'Traveling', 'icon': Icons.flight, 'color': Colors.purple},
-    {'name': 'Photography', 'icon': Icons.camera, 'color': Colors.red},
-    {'name': 'Gaming', 'icon': Icons.videogame_asset, 'color': Color.fromARGB(255, 245, 241, 4)},
-    {'name': 'Painting', 'icon': Icons.palette, 'color': Colors.pink},
+    {'name': 'Passeggiate', 'icon': Icons.directions_walk, 'color': Colors.blue},
+    {'name': 'Correre', 'icon': Icons.sports_score, 'color': Colors.green},
+    {'name': 'Gare canine', 'icon': Icons.restaurant, 'color': Colors.orange},
+    {'name': 'Sfilate di moda', 'icon': Icons.diamond, 'color': Colors.purple},
+    {'name': 'Fare amicizia', 'icon': Icons.people, 'color': Colors.red},
+    {'name': 'Giocare', 'icon': Icons.videogame_asset, 'color': Color.fromARGB(255, 245, 241, 4)},
+    {'name': 'Mangiare', 'icon': Icons.restaurant, 'color': Colors.pink},
   ];
 
   Widget _buildPredefinedHobby(String hobby, IconData icon, Color color) {
@@ -87,96 +94,177 @@ class _ThirdScreenState extends State<ThirdScreen> {
   }
 
   bool validateForm() {
-    if (hobbies.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Hobbies Required'),
-            content: Text('Please select at least one hobby.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-      return false;
+    if (_formKey.currentState?.validate() ?? false) {
+      if (hobbies.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Informazioni Mancanti'),
+              content: Text('Per favore seleziona almeno un hobby.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        return false;
+      }
+      return true;
     }
-    return true;
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Hobbies'),
+        title: Text('Parlateci di voi'),
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Image.asset(
-                'assets/images/hobbies.jpg',
-                height: 200,
-                width: 250,
-              ),
-              SizedBox(height: 10.0),
-              Wrap(
-                spacing: 1.0,
-                runSpacing: 1.0,
-                children: predefinedHobbies
-                    .map((hobby) => _buildPredefinedHobby(
-                        hobby['name'], hobby['icon'], hobby['color']))
-                    .toList(),
-              ),
-              SizedBox(height: 20.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: customHobbyController,
-                      onChanged: (value) {
-                        setState(() {
-                          showCustomHobbyContainer = value.isNotEmpty;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Enter Custom Hobby',
-                        prefixIcon: Icon(Icons.favorite),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Dog Information
+                TextFormField(
+                  controller: dogNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Nome del Cane',
+                    prefixIcon: Icon(Icons.pets),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Per favore inserisci il nome del cane';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10.0),
+                TextFormField(
+                  controller: dogBreedController,
+                  decoration: InputDecoration(
+                    labelText: 'Specie del Cane',
+                    prefixIcon: Icon(Icons.info),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Per favore inserisci la specie del cane';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10.0),
+                TextFormField(
+                  controller: dogAgeController,
+                  decoration: InputDecoration(
+                    labelText: 'Età del Cane',
+                    prefixIcon: Icon(Icons.cake),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Per favore inserisci l\'età del cane';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20.0),
+
+                Container(
+                  margin: EdgeInsets.only(right: 15.0, top: 10),
+                  child: Center(
+                    child: Text(
+                      'Attività',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24, // Puoi regolare la dimensione del testo a tuo piacimento
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () {
-                      _addToHobbiesList(customHobbyController.text);
+                ),
 
-                      customHobbyController.clear();
-                      setState(() {
-                        showCustomHobbyContainer = false;
-                      });
-                    },
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              SizedBox(height: 20.0),
-              Wrap(
-                spacing: 8.0,
-                runSpacing: 8.0,
-                children: hobbies
-                    .map((hobby) => _buildSelectedHobbyChip(hobby))
-                    .toList(),
-              ),
-              SizedBox(height: 20.0),
-              ElevatedButton(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15.0),
+                    child: Image.asset(
+                      'assets/images/hobbies.jpg',
+                      height: 200,
+                      width: 250,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                Wrap(
+                  spacing: 1.0,
+                  runSpacing: 1.0,
+                  children: predefinedHobbies
+                      .map((hobby) => _buildPredefinedHobby(
+                      hobby['name'], hobby['icon'], hobby['color']))
+                      .toList(),
+                ),
+                SizedBox(height: 20.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: customHobbyController,
+                        onChanged: (value) {
+                          setState(() {
+                            showCustomHobbyContainer = value.isNotEmpty;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Inserisci altre attività',
+                          prefixIcon: Icon(Icons.favorite),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        if (customHobbyController.text.isNotEmpty) {
+                          _addToHobbiesList(customHobbyController.text);
+                          customHobbyController.clear();
+                          setState(() {
+                            showCustomHobbyContainer = false;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20.0),
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  children: hobbies
+                      .map((hobby) => _buildSelectedHobbyChip(hobby))
+                      .toList(),
+                ),
+                SizedBox(height: 20.0),
+                ElevatedButton(
                   onPressed: () {
                     if (validateForm()) {
                       Navigator.push(
@@ -196,7 +284,7 @@ class _ThirdScreenState extends State<ThirdScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Color.fromARGB(255, 130, 108, 255),
+                    backgroundColor: Color.fromARGB(255, 130, 108, 255),
                     padding: EdgeInsets.symmetric(vertical: 15.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -209,8 +297,10 @@ class _ThirdScreenState extends State<ThirdScreen> {
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
-                  )),
-            ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
